@@ -26,5 +26,6 @@ EXPOSE 3000
 ENV NODE_ENV=production
 ENV DB_PATH=/data/spotlight.db
 
-ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
+# Run via sh so the script always executes; CMD args are appended (see Docker exec form).
+ENTRYPOINT ["/bin/sh", "/app/scripts/docker-entrypoint.sh"]
 CMD ["npm", "start"]
