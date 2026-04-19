@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node api/server.mjs",
+    "start": "node scripts/seed-db.mjs && node api/server.mjs",
     "send-alerts": "node api/send-alerts.mjs",
     "scrape:comedy-cellar": "node scrapers/comedy-cellar/scrape-tonight.mjs",
     "scrape:comedy-cellar:all": "node scrapers/comedy-cellar/scrape-all-dates.mjs",
