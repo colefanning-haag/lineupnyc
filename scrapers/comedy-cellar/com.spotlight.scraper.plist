@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+INSTALL (LaunchAgent - runs when you are logged in):
+
+  1) Copy this file to:
+       ~/Library/LaunchAgents/com.spotlight.scraper.plist
+
+  2) Load it:
+       launchctl load -w ~/Library/LaunchAgents/com.spotlight.scraper.plist
+
+  3) Check status:
+       launchctl list | grep com.spotlight.scraper
+
+  4) Unload (to stop it):
+       launchctl unload -w ~/Library/LaunchAgents/com.spotlight.scraper.plist
+
+Notes:
+  - Update ProgramArguments / WorkingDirectory below if your project path changes (spotlight/scrapers/comedy-cellar).
+  - Logs go to ~/Library/Logs/spotlight-scraper.{out,err}.log
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.spotlight.scraper</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/usr/bin/env</string>
+      <string>node</string>
+      <string>/Users/colefanninghaag/Documents/spotlight/scrapers/comedy-cellar/cron.mjs</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/colefanninghaag/Documents/spotlight/scrapers/comedy-cellar</string>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+      <key>Hour</key>
+      <integer>9</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/Users/colefanninghaag/Library/Logs/spotlight-scraper.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/colefanninghaag/Library/Logs/spotlight-scraper.err.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+  </dict>
+</plist>
+

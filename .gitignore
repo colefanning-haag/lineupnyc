@@ -1,0 +1,9 @@
+node_modules/
+.env
+spotlight.db
+*.json
+!/package.json
+!/package-lock.json
+!/railway.json
+page-dump.html
+*.log

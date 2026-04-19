@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c0c0f" />
+  <title>Spotlight — Shows</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0c0f;
+      --bg-elevated: #14141a;
+      --bg-card: #18181f;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f4f4f8;
+      --text-muted: #9898a8;
+      --accent: #7c5cff;
+      --radius: 14px;
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background:
+        radial-gradient(1200px 600px at 80% -10%, rgba(124, 92, 255, 0.12), transparent 55%),
+        radial-gradient(900px 500px at -10% 20%, rgba(56, 189, 248, 0.08), transparent 50%),
+        var(--bg);
+      padding-bottom: calc(24px + var(--safe-bottom));
+    }
+
+    .shell {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 16px 0;
+    }
+
+    header {
+      margin-bottom: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-right {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      max-width: min(100%, 320px);
+      text-align: right;
+    }
+
+    #subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .btn-alerts {
+      flex-shrink: 0;
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(124, 92, 255, 0.45);
+      background: linear-gradient(145deg, rgba(124, 92, 255, 0.35), rgba(124, 92, 255, 0.12));
+      color: #ede9fe;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-alerts:hover {
+      border-color: rgba(167, 139, 250, 0.65);
+      background: linear-gradient(145deg, rgba(124, 92, 255, 0.45), rgba(124, 92, 255, 0.18));
+    }
+
+    .btn-alerts:active {
+      transform: scale(0.97);
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+      background: rgba(6, 6, 10, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .modal-overlay[hidden] {
+      display: none !important;
+    }
+
+    .modal-panel {
+      position: relative;
+      width: min(100%, 420px);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      padding: 26px 22px 22px;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal-x {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      font-size: 1.35rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .modal-x:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+
+    .modal-title {
+      margin: 0 28px 8px 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-sub {
+      margin: 0 0 20px;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .modal-field {
+      margin-bottom: 14px;
+    }
+
+    .modal-field label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .modal-field input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .modal-field input:focus {
+      border-color: rgba(124, 92, 255, 0.55);
+    }
+
+    .modal-field input::placeholder {
+      color: #5c5c6e;
+    }
+
+    .modal-autocomplete-wrap {
+      position: relative;
+    }
+
+    .comedian-dropdown {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 5px);
+      z-index: 20;
+      max-height: 240px;
+      overflow-y: auto;
+      margin: 0;
+      padding: 6px 0;
+      list-style: none;
+      background: #111118;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+    }
+
+    .comedian-dropdown[hidden] {
+      display: none !important;
+    }
+
+    .comedian-dropdown li {
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      line-height: 1.3;
+      color: #e8e8f0;
+      cursor: pointer;
+      transition: background 0.1s ease;
+    }
+
+    .comedian-dropdown li:hover,
+    .comedian-dropdown li:focus {
+      background: rgba(124, 92, 255, 0.2);
+      outline: none;
+    }
+
+    .comedian-dropdown li:active {
+      background: rgba(124, 92, 255, 0.28);
+    }
+
+    .comedian-dropdown-empty {
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .btn-notify {
+      width: 100%;
+      margin-top: 8px;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 12px;
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #0c0c0f;
+      background: linear-gradient(145deg, #ddd6fe, #a78bfa);
+      box-shadow: 0 8px 28px rgba(124, 92, 255, 0.35);
+      transition: transform 0.12s ease, filter 0.15s ease;
+    }
+
+    .btn-notify:hover {
+      filter: brightness(1.06);
+    }
+
+    .btn-notify:active {
+      transform: scale(0.99);
+    }
+
+    .btn-notify:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .modal-error {
+      margin: 0 0 12px;
+      font-size: 0.85rem;
+      color: #fca5a5;
+      min-height: 1.2em;
+    }
+
+    .modal-success {
+      text-align: center;
+      padding: 8px 4px 4px;
+    }
+
+    .modal-success-icon {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: rgba(52, 211, 153, 0.15);
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #6ee7b7;
+    }
+
+    .modal-success h3 {
+      margin: 0 0 8px;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .modal-success p {
+      margin: 0 0 20px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .btn-done {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-done:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .controls-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 560px) {
+      .controls-wrap {
+        flex-direction: row;
+        align-items: flex-end;
+      }
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    @media (min-width: 560px) {
+      .controls {
+        flex-direction: row;
+        align-items: stretch;
+      }
+      .field-grow {
+        flex: 1;
+      }
+    }
+
+    .btn-clear {
+      flex-shrink: 0;
+      align-self: stretch;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 12px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-clear:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-clear:active {
+      transform: scale(0.98);
+    }
+
+    @media (min-width: 560px) {
+      .btn-clear {
+        align-self: flex-end;
+      }
+    }
+
+    .field {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .field label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .field input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 1rem;
+      padding: 2px 0;
+      outline: none;
+    }
+
+    .field input::placeholder {
+      color: #5c5c6e;
+    }
+
+    input[type="date"] {
+      color-scheme: dark;
+      min-height: 1.5rem;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 8px 0 18px;
+      flex-wrap: wrap;
+    }
+
+    .count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .status {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .status.loading { color: #a8b4ff; }
+    .status.error { color: #ff8a8a; }
+
+    .empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .day-header {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin: 26px 0 10px;
+    }
+
+    .day-header:first-child {
+      margin-top: 0;
+    }
+
+    .day-header-label {
+      font-size: 1.02rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #f2f2f8;
+      white-space: nowrap;
+    }
+
+    .day-header-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04));
+      transform: translateY(1px);
+    }
+
+    .venue-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      margin: 4px 0 14px;
+    }
+
+    .venue-filter-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .venue-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .venue-chip {
+      font: inherit;
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+    }
+
+    .venue-chip:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: #d4d4de;
+    }
+
+    .venue-chip:active {
+      transform: scale(0.98);
+    }
+
+    .venue-chip.is-active {
+      color: #ede9fe;
+      border-color: rgba(124, 92, 255, 0.55);
+      background: linear-gradient(145deg, rgba(124, 92, 255, 0.38), rgba(124, 92, 255, 0.12));
+      box-shadow: 0 4px 18px rgba(124, 92, 255, 0.2);
+    }
+
+    article.card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 16px 14px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    article.card:focus {
+      outline: none;
+      border-color: rgba(124, 92, 255, 0.45);
+      box-shadow: var(--shadow), 0 0 0 2px rgba(124, 92, 255, 0.25);
+    }
+
+    article.card:focus:not(:focus-visible) {
+      border-color: var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    article.card.expanded {
+      border-color: rgba(124, 92, 255, 0.28);
+    }
+
+    article.card:active {
+      transform: scale(0.995);
+    }
+
+    .card-hint {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b6b7e;
+      margin-top: 10px;
+    }
+
+    .show-card.expanded .card-hint {
+      display: none;
+    }
+
+    .card-expanded {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-expanded[hidden] {
+      display: none !important;
+    }
+
+    .card-credits {
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: #c8c8d4;
+    }
+
+    .credit-block {
+      margin-bottom: 12px;
+    }
+
+    .credit-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .credit-block strong {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #e8e8f0;
+      margin-bottom: 4px;
+    }
+
+    .credit-block p {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+
+    .card-credits-empty {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .btn-tickets {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 16px;
+      padding: 11px 20px;
+      border-radius: 12px;
+      border: none;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      color: #0c0c0f;
+      background: linear-gradient(145deg, #ddd6fe, #a78bfa);
+      box-shadow: 0 6px 22px rgba(124, 92, 255, 0.3);
+      transition: transform 0.12s ease, filter 0.15s ease;
+    }
+
+    .btn-tickets:hover {
+      filter: brightness(1.06);
+    }
+
+    .btn-tickets:active {
+      transform: scale(0.98);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .venue {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .card-date {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #c4b5fd;
+      letter-spacing: 0.03em;
+      line-height: 1.2;
+    }
+
+    .time {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e8e8f0;
+      white-space: nowrap;
+    }
+
+    /* Source accent stripe (left edge) */
+    article.card[data-venue-tone="cellar"] { border-left: 3px solid #7c3aed; }
+    article.card[data-venue-tone="nycc"] { border-left: 3px solid #2563eb; }
+    article.card[data-venue-tone="gotham"] { border-left: 3px solid #d97706; }
+    article.card[data-venue-tone="stand"] { border-left: 3px solid #0d9488; }
+    article.card[data-venue-tone="other"] { border-left: 3px solid rgba(148, 163, 184, 0.45); }
+
+    .comics {
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: #d4d4de;
+    }
+
+    .comics strong {
+      font-weight: 600;
+      color: #f0f0f7;
+    }
+
+    .load-more-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0 8px;
+    }
+
+    .load-more-wrap[hidden] {
+      display: none !important;
+    }
+
+    .btn-load-more {
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(124, 92, 255, 0.45);
+      background: linear-gradient(145deg, rgba(124, 92, 255, 0.28), rgba(124, 92, 255, 0.1));
+      color: #ede9fe;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-load-more:hover:not(:disabled) {
+      border-color: rgba(167, 139, 250, 0.65);
+      background: linear-gradient(145deg, rgba(124, 92, 255, 0.38), rgba(124, 92, 255, 0.14));
+    }
+
+    .btn-load-more:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn-load-more:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 0.75rem;
+      color: #5c5c6e;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <h1>Spotlight</h1>
+        <div class="brand-right">
+          <span id="subtitle">Tonight’s lineup</span>
+          <button type="button" class="btn-alerts" id="open-alerts">Set Up Alerts</button>
+        </div>
+      </div>
+      <div class="controls-wrap">
+        <div class="controls">
+          <div class="field field-grow">
+            <label for="date-from">From</label>
+            <input type="date" id="date-from" name="date_from" />
+          </div>
+          <div class="field field-grow">
+            <label for="date-to">To</label>
+            <input type="date" id="date-to" name="date_to" />
+          </div>
+          <div class="field field-grow">
+            <label for="search">Comedian</label>
+            <input type="search" id="search" name="search" placeholder="e.g. Mark Normand" autocomplete="off" />
+          </div>
+        </div>
+        <button type="button" class="btn-clear" id="clear" aria-label="Clear date and comedian filters">
+          Clear
+        </button>
+      </div>
+      <div class="venue-filter-row">
+        <span class="venue-filter-label" id="venue-filter-label">Venue</span>
+        <div class="venue-chips" id="venue-chips" role="group" aria-labelledby="venue-filter-label">
+          <button type="button" class="venue-chip is-active" data-source="all">All</button>
+          <button type="button" class="venue-chip" data-source="comedy-cellar">Comedy Cellar</button>
+          <button type="button" class="venue-chip" data-source="nycc">NYCC</button>
+          <button type="button" class="venue-chip" data-source="gotham">Gotham</button>
+          <button type="button" class="venue-chip" data-source="the-stand">The Stand</button>
+        </div>
+      </div>
+      <div class="meta-row">
+        <p class="count" id="count"></p>
+        <p class="status" id="status" aria-live="polite"></p>
+      </div>
+    </header>
+
+    <main class="grid" id="list" aria-live="polite"></main>
+
+    <div class="load-more-wrap" id="load-more-wrap" hidden>
+      <button type="button" class="btn-load-more" id="load-more">Load More</button>
+    </div>
+
+    <footer>Data from your local Spotlight database · API <code>/shows</code></footer>
+  </div>
+
+  <div id="alerts-modal" class="modal-overlay" hidden>
+    <div
+      class="modal-panel"
+      id="alerts-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-desc"
+    >
+      <button type="button" class="modal-x" id="close-alerts" aria-label="Close">&times;</button>
+
+      <div id="modal-form-wrap">
+        <h2 class="modal-title" id="modal-title">Get Notified</h2>
+        <p class="modal-sub" id="modal-desc">We&apos;ll email you when your favorite comedian plays NYC</p>
+        <p class="modal-error" id="modal-error" aria-live="polite"></p>
+        <form id="watchlist-form">
+          <div class="modal-field">
+            <label for="alert-email">Email</label>
+            <input type="email" id="alert-email" name="email" autocomplete="email" required placeholder="you@example.com" />
+          </div>
+          <div class="modal-field">
+            <label for="alert-comedian">Comedian</label>
+            <div class="modal-autocomplete-wrap" id="alert-comedian-wrap">
+              <input
+                type="text"
+                id="alert-comedian"
+                name="comedian"
+                required
+                placeholder="e.g. Mark Normand"
+                autocomplete="off"
+                aria-autocomplete="list"
+                aria-controls="comedian-suggestions"
+                aria-expanded="false"
+              />
+              <ul id="comedian-suggestions" class="comedian-dropdown" hidden role="listbox"></ul>
+            </div>
+          </div>
+          <button type="submit" class="btn-notify" id="watchlist-submit">Notify Me</button>
+        </form>
+      </div>
+
+      <div id="modal-success-wrap" hidden>
+        <div class="modal-success">
+          <div class="modal-success-icon" aria-hidden="true">&#10003;</div>
+          <h3>You&apos;re on the list</h3>
+          <p id="modal-success-msg">We&apos;ll email you when they&apos;re booked in NYC.</p>
+          <button type="button" class="btn-done" id="modal-success-close">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = "";
+    const PAGE_SIZE = 50;
+
+    /** `row.date` as YYYY-MM-DD → "Mon Apr 20" */
+    function formatShowDate(iso) {
+      if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(String(iso).trim())) return "";
+      const [y, mo, d] = String(iso)
+        .trim()
+        .split("-")
+        .map((n) => Number(n));
+      const dt = new Date(y, mo - 1, d);
+      if (Number.isNaN(dt.getTime())) return "";
+      const parts = new Intl.DateTimeFormat("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric"
+      }).formatToParts(dt);
+      const pick = (t) => parts.find((p) => p.type === t)?.value || "";
+      const w = pick("weekday");
+      const m = pick("month");
+      const day = pick("day");
+      if (!w || !m || !day) return "";
+      return `${w} ${m} ${day}`.replace(/\s+/g, " ");
+    }
+
+    function groupShowsByDate(rows) {
+      const groups = [];
+      for (const row of rows) {
+        const key = row.date != null ? String(row.date).trim() : "";
+        const last = groups[groups.length - 1];
+        if (!last || last.date !== key) groups.push({ date: key, shows: [] });
+        groups[groups.length - 1].shows.push(row);
+      }
+      return groups;
+    }
+
+    function venueTone(row) {
+      const s = String(row?.source || "").trim();
+      if (s === "comedy-cellar") return "cellar";
+      if (s === "nycc") return "nycc";
+      if (s === "gotham") return "gotham";
+      if (s === "the-stand") return "stand";
+      return "other";
+    }
+
+    function toTitleCaseWords(s) {
+      return String(s || "")
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .map((w) => {
+          if (!w) return "";
+          const lower = w.toLowerCase();
+          if (lower.startsWith("(") && lower.length > 2) {
+            return "(" + lower.charAt(1).toUpperCase() + lower.slice(2);
+          }
+          return lower.charAt(0).toUpperCase() + lower.slice(1);
+        })
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    /** Display line for the room / venue on a show card. */
+    function formatCardVenue(row) {
+      const source = String(row.source || "");
+      if (source === "nycc") {
+        const loc = toTitleCaseWords(row.venue || "");
+        if (!loc) return "NY Comedy Club";
+        return `NY Comedy Club – ${loc}`;
+      }
+      if (source === "comedy-cellar") {
+        const loc = toTitleCaseWords(row.venue || "");
+        if (!loc) return "Comedy Cellar";
+        return `Comedy Cellar – ${loc}`;
+      }
+      const v = String(row.venue || "").trim();
+      return v || "Venue";
+    }
+
+    const TICKET_URLS = {
+      "comedy-cellar": "https://www.comedycellar.com/reservations",
+      nycc: "https://newyorkcomedyclub.com/calendar",
+      gotham: "https://www.gothamcomedyclub.com/calendar",
+      "the-stand": "https://thestandnyc.com/shows"
+    };
+
+    const els = {
+      dateFrom: document.getElementById("date-from"),
+      dateTo: document.getElementById("date-to"),
+      search: document.getElementById("search"),
+      clear: document.getElementById("clear"),
+      list: document.getElementById("list"),
+      count: document.getElementById("count"),
+      status: document.getElementById("status"),
+      subtitle: document.getElementById("subtitle"),
+      openAlerts: document.getElementById("open-alerts"),
+      alertsModal: document.getElementById("alerts-modal"),
+      closeAlerts: document.getElementById("close-alerts"),
+      watchlistForm: document.getElementById("watchlist-form"),
+      alertEmail: document.getElementById("alert-email"),
+      alertComedian: document.getElementById("alert-comedian"),
+      comedianSuggestions: document.getElementById("comedian-suggestions"),
+      watchlistSubmit: document.getElementById("watchlist-submit"),
+      modalFormWrap: document.getElementById("modal-form-wrap"),
+      modalSuccessWrap: document.getElementById("modal-success-wrap"),
+      modalError: document.getElementById("modal-error"),
+      modalSuccessClose: document.getElementById("modal-success-close"),
+      loadMoreWrap: document.getElementById("load-more-wrap"),
+      loadMore: document.getElementById("load-more"),
+      venueChips: document.getElementById("venue-chips")
+    };
+
+    let showsAccum = [];
+    let canLoadMore = false;
+    /** @type {"all"|"comedy-cellar"|"nycc"|"gotham"|"the-stand"} */
+    let venueFilter = "all";
+
+    let debounceTimer;
+    let alertsModalOpen = false;
+    let comedianSuggestTimer = null;
+    let comedianSuggestAbort = null;
+
+    function hideComedianDropdown() {
+      els.comedianSuggestions.hidden = true;
+      els.comedianSuggestions.innerHTML = "";
+      els.alertComedian.setAttribute("aria-expanded", "false");
+    }
+
+    function openAlertsModal() {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+      clearTimeout(comedianSuggestTimer);
+      comedianSuggestTimer = null;
+      if (comedianSuggestAbort) comedianSuggestAbort.abort();
+      comedianSuggestAbort = null;
+      hideComedianDropdown();
+      alertsModalOpen = true;
+      els.alertsModal.hidden = false;
+      document.body.classList.add("modal-open");
+      els.modalFormWrap.hidden = false;
+      els.modalSuccessWrap.hidden = true;
+      els.modalError.textContent = "";
+      els.watchlistForm.reset();
+      els.alertEmail.focus();
+    }
+
+    function closeAlertsModal() {
+      alertsModalOpen = false;
+      clearTimeout(comedianSuggestTimer);
+      comedianSuggestTimer = null;
+      if (comedianSuggestAbort) comedianSuggestAbort.abort();
+      comedianSuggestAbort = null;
+      hideComedianDropdown();
+      els.alertsModal.hidden = true;
+      document.body.classList.remove("modal-open");
+      els.modalFormWrap.hidden = false;
+      els.modalSuccessWrap.hidden = true;
+      els.modalError.textContent = "";
+      els.watchlistSubmit.disabled = false;
+    }
+
+    function scheduleComedianSuggest() {
+      clearTimeout(comedianSuggestTimer);
+      if (comedianSuggestAbort) comedianSuggestAbort.abort();
+      const q = els.alertComedian.value.trim();
+      if (q.length < 2) {
+        hideComedianDropdown();
+        return;
+      }
+      comedianSuggestTimer = setTimeout(async () => {
+        comedianSuggestAbort = new AbortController();
+        const ac = comedianSuggestAbort;
+        try {
+          const res = await fetch(`${API}/comedians?q=${encodeURIComponent(q)}`, { signal: ac.signal });
+          if (!res.ok) throw new Error(String(res.status));
+          const names = await res.json();
+          if (!Array.isArray(names)) throw new Error("bad json");
+          if (ac.signal.aborted) return;
+          els.comedianSuggestions.innerHTML = "";
+          if (!names.length) {
+            const li = document.createElement("li");
+            li.className = "comedian-dropdown-empty";
+            li.textContent = "No matches";
+            li.setAttribute("role", "presentation");
+            els.comedianSuggestions.appendChild(li);
+          } else {
+            for (const name of names.slice(0, 50)) {
+              const li = document.createElement("li");
+              li.setAttribute("role", "option");
+              li.tabIndex = -1;
+              li.textContent = name;
+              li.addEventListener("mousedown", (e) => {
+                e.preventDefault();
+                els.alertComedian.value = name;
+                hideComedianDropdown();
+                els.alertComedian.focus();
+              });
+              els.comedianSuggestions.appendChild(li);
+            }
+          }
+          els.comedianSuggestions.hidden = false;
+          els.alertComedian.setAttribute("aria-expanded", "true");
+        } catch (e) {
+          if (e.name === "AbortError") return;
+          hideComedianDropdown();
+        }
+      }, 200);
+    }
+
+    els.openAlerts.addEventListener("click", openAlertsModal);
+    els.closeAlerts.addEventListener("click", closeAlertsModal);
+    els.modalSuccessClose.addEventListener("click", closeAlertsModal);
+
+    els.alertsModal.addEventListener("click", (e) => {
+      if (e.target === els.alertsModal) closeAlertsModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !els.alertsModal.hidden) closeAlertsModal();
+    });
+
+    els.alertComedian.addEventListener("input", scheduleComedianSuggest);
+
+    els.alertComedian.addEventListener("blur", () => {
+      setTimeout(() => hideComedianDropdown(), 180);
+    });
+
+    els.alertComedian.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key !== "Escape") return;
+        if (els.comedianSuggestions.hidden) return;
+        e.stopPropagation();
+        hideComedianDropdown();
+      },
+      true
+    );
+
+    els.watchlistForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      els.modalError.textContent = "";
+      const email = els.alertEmail.value.trim();
+      const comedian = els.alertComedian.value.trim();
+      if (!email || !comedian) {
+        els.modalError.textContent = "Please enter your email and a comedian name.";
+        return;
+      }
+      els.watchlistSubmit.disabled = true;
+      try {
+        await fetch(`${API}/watchlist`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, comedian })
+        });
+      } catch {
+        /* no backend yet — UI still confirms */
+      }
+      els.modalFormWrap.hidden = true;
+      els.modalSuccessWrap.hidden = false;
+      els.watchlistSubmit.disabled = false;
+    });
+
+    function setStatus(text, kind) {
+      els.status.textContent = text;
+      els.status.className = "status" + (kind ? " " + kind : "");
+    }
+
+    function buildUrl(offset = 0) {
+      const params = new URLSearchParams();
+      params.set("limit", String(PAGE_SIZE));
+      if (offset > 0) params.set("offset", String(offset));
+      const fromVal = els.dateFrom.value.trim();
+      const toVal = els.dateTo.value.trim();
+      if (fromVal && toVal) {
+        params.set("date_from", fromVal);
+        params.set("date_to", toVal);
+      } else if (fromVal) {
+        params.set("date", fromVal);
+      } else if (toVal) {
+        params.set("date", toVal);
+      }
+      const q = els.search.value.trim();
+      if (q) params.set("comedian", q);
+      return `${API}/shows?${params.toString()}`;
+    }
+
+    function updateLoadMoreUi() {
+      els.loadMoreWrap.hidden = !canLoadMore;
+      els.loadMore.disabled = false;
+    }
+
+    function filterRowsByVenue(rows) {
+      if (venueFilter === "all") return rows;
+      return rows.filter((r) => String(r.source || "") === venueFilter);
+    }
+
+    function setVenueChipActive(source) {
+      for (const btn of els.venueChips.querySelectorAll("button[data-source]")) {
+        btn.classList.toggle("is-active", btn.dataset.source === source);
+      }
+    }
+
+    /** Phrases that indicate NYCC (and similar) venue marketing blurbs, not per-comedian credits. */
+    const CREDITS_BOILERPLATE_SUBSTRINGS = [
+      "get the authentic nyc",
+      "spent the day exploring",
+      "nothing says downtown",
+      "a comic. a mic.",
+      "it's never too early to get your comedy fix",
+      "wildly popular and thoroughly unpredictable",
+      "laughing buddha comedy showcases",
+      "if a band practices in a garage",
+      "the newly expanded new york comedy club is proud",
+      "tucked into the upper west side just minutes from times square",
+      "nyc's top showcase for up-and-coming",
+      "skip out of work early and join us for this"
+    ];
+
+    function normalizeCreditsForMatch(s) {
+      return String(s)
+        .toLowerCase()
+        .replace(/\u2019/g, "'")
+        .replace(/\u00a0/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function isBoilerplateCreditsText(cred) {
+      const t = normalizeCreditsForMatch(cred);
+      return CREDITS_BOILERPLATE_SUBSTRINGS.some((phrase) => t.includes(phrase));
+    }
+
+    /** First character upper, rest lower (whole blob as one sentence). */
+    function toSentenceCase(s) {
+      const t = String(s).trim();
+      if (!t) return t;
+      const lower = t.toLowerCase();
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    }
+
+    function buildCreditsFromRawJson(rawJson) {
+      const wrap = document.createElement("div");
+      wrap.className = "card-credits";
+      let hasMeaningfulCredit = false;
+      try {
+        const parsed = JSON.parse(rawJson || "{}");
+        const comics = Array.isArray(parsed.comedians) ? parsed.comedians : [];
+        for (const c of comics) {
+          const cred = String(c?.credits ?? "")
+            .replace(/\u00a0/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          if (!cred || isBoilerplateCreditsText(cred)) continue;
+          hasMeaningfulCredit = true;
+          const block = document.createElement("div");
+          block.className = "credit-block";
+          const strong = document.createElement("strong");
+          strong.textContent = String(c?.name ?? "Comedian")
+            .replace(/\u00a0/g, " ")
+            .replace(/\s+/g, " ")
+            .trim() || "Comedian";
+          const p = document.createElement("p");
+          p.textContent = toSentenceCase(cred);
+          block.appendChild(strong);
+          block.appendChild(p);
+          wrap.appendChild(block);
+        }
+      } catch {
+        // ignore bad JSON
+      }
+      return hasMeaningfulCredit ? wrap : null;
+    }
+
+    function bindCardToggle(card) {
+      const expandPanel = card.querySelector(".card-expanded");
+      const sync = (open) => {
+        card.classList.toggle("expanded", open);
+        card.setAttribute("aria-expanded", open ? "true" : "false");
+        expandPanel.hidden = !open;
+        expandPanel.setAttribute("aria-hidden", open ? "false" : "true");
+      };
+
+      card.addEventListener("click", (e) => {
+        if (e.target.closest("a.btn-tickets")) return;
+        if (card.classList.contains("expanded") && e.target.closest(".card-expanded")) return;
+        sync(!card.classList.contains("expanded"));
+      });
+
+      card.addEventListener("keydown", (e) => {
+        if (e.target !== card) return;
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        sync(!card.classList.contains("expanded"));
+      });
+    }
+
+    function renderShows(rows) {
+      els.list.innerHTML = "";
+      if (!rows.length) {
+        const fromVal = els.dateFrom.value.trim();
+        const toVal = els.dateTo.value.trim();
+        const hasRange = fromVal !== "" && toVal !== "";
+        const hasSingle = (fromVal !== "" && toVal === "") || (fromVal === "" && toVal !== "");
+        const hasSearch = els.search.value.trim() !== "";
+        let msg = "No upcoming shows in the database.";
+        if (hasRange && hasSearch) msg = "No shows in that date range match your search.";
+        else if (hasRange) msg = "No shows in that date range.";
+        else if (hasSingle && hasSearch) msg = "No shows for that date match your search.";
+        else if (hasSingle) msg = "No shows for that date.";
+        else if (hasSearch) msg = "No upcoming shows match your search.";
+        els.list.innerHTML = '<p class="empty">' + msg + "</p>";
+        els.count.textContent = "";
+        return;
+      }
+
+      const filtered = filterRowsByVenue(rows);
+      if (!filtered.length) {
+        els.list.innerHTML =
+          '<p class="empty">No shows match this venue in your loaded results. Pick another venue or load more.</p>';
+        els.count.textContent = `0 shows`;
+        return;
+      }
+
+      const frag = document.createDocumentFragment();
+      const groups = groupShowsByDate(filtered);
+
+      for (const g of groups) {
+        const header = document.createElement("div");
+        header.className = "day-header";
+        const label = formatShowDate(g.date) || g.date || "Unknown date";
+        header.innerHTML = `
+          <span class="day-header-label">${escapeHtml(label)}</span>
+          <span class="day-header-line" aria-hidden="true"></span>
+        `;
+        frag.appendChild(header);
+
+        for (const row of g.shows) {
+          const card = document.createElement("article");
+          card.className = "card show-card";
+          card.dataset.source = String(row.source || "");
+          card.dataset.venueTone = venueTone(row);
+          card.setAttribute("role", "button");
+          card.setAttribute("tabindex", "0");
+          card.setAttribute("aria-expanded", "false");
+
+          const dateLine = formatShowDate(row.date) || formatShowDate(g.date) || "";
+
+          const names = (row.comedian_names || "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+          const comicsHtml =
+            names.length > 0
+              ? names.map((n) => `<span>${escapeHtml(n)}</span>`).join("<span> · </span>")
+              : "<em style='color:#7a7a8c'>No names listed</em>";
+
+          const src = String(row.source || "");
+
+          const main = document.createElement("div");
+          main.className = "card-main";
+          main.innerHTML = `
+            <div class="card-top">
+              <div class="venue">${escapeHtml(formatCardVenue(row))}</div>
+              <div class="card-right">
+                <div class="card-date">${escapeHtml(dateLine)}</div>
+                <div class="time">${escapeHtml(row.time || "")}</div>
+              </div>
+            </div>
+            <div class="comics"><strong>Lineup</strong> — ${comicsHtml}</div>
+            <div class="card-hint">Tap for details &amp; tickets</div>
+          `;
+
+          const expanded = document.createElement("div");
+          expanded.className = "card-expanded";
+          expanded.hidden = true;
+          expanded.setAttribute("aria-hidden", "true");
+          const creditsBlock = buildCreditsFromRawJson(row.raw_json);
+          if (creditsBlock) expanded.appendChild(creditsBlock);
+
+          const ticketHref = TICKET_URLS[src] || TICKET_URLS["comedy-cellar"];
+          const tickets = document.createElement("a");
+          tickets.className = "btn-tickets";
+          tickets.href = ticketHref;
+          tickets.target = "_blank";
+          tickets.rel = "noopener noreferrer";
+          tickets.textContent = "Get Tickets";
+
+          expanded.appendChild(tickets);
+          card.appendChild(main);
+          card.appendChild(expanded);
+          bindCardToggle(card);
+          frag.appendChild(card);
+        }
+      }
+      els.list.appendChild(frag);
+      els.count.textContent = `${filtered.length} show${filtered.length === 1 ? "" : "s"}`;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function loadShows() {
+      setStatus("Loading…", "loading");
+      els.count.textContent = "";
+      canLoadMore = false;
+      updateLoadMoreUi();
+      showsAccum = [];
+
+      const fromVal = els.dateFrom.value.trim();
+      const toVal = els.dateTo.value.trim();
+      const hasSearch = els.search.value.trim() !== "";
+      if (fromVal && toVal) {
+        const a = fromVal <= toVal ? fromVal : toVal;
+        const b = fromVal <= toVal ? toVal : fromVal;
+        els.subtitle.textContent = `Shows · ${a} – ${b}`;
+      } else if (fromVal) els.subtitle.textContent = `Shows · ${fromVal}`;
+      else if (toVal) els.subtitle.textContent = `Shows · ${toVal}`;
+      else if (hasSearch) els.subtitle.textContent = "Upcoming shows · filtered by comedian";
+      else els.subtitle.textContent = "Upcoming shows";
+
+      try {
+        const res = await fetch(buildUrl(0));
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("Invalid response");
+
+        showsAccum = data;
+        canLoadMore = data.length === PAGE_SIZE;
+        renderShows(showsAccum);
+        setStatus("", "");
+        updateLoadMoreUi();
+      } catch (e) {
+        console.error(e);
+        els.list.innerHTML =
+          '<p class="empty">Could not load shows. Is <code>npm start</code> running on port 3000?</p>';
+        els.count.textContent = "";
+        canLoadMore = false;
+        updateLoadMoreUi();
+        setStatus("Error", "error");
+      }
+    }
+
+    async function loadMoreShows() {
+      if (!canLoadMore || els.loadMore.disabled) return;
+      els.loadMore.disabled = true;
+      setStatus("Loading more…", "loading");
+      try {
+        const res = await fetch(buildUrl(showsAccum.length));
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!Array.isArray(data)) throw new Error("Invalid response");
+        if (data.length === 0) {
+          canLoadMore = false;
+        } else {
+          showsAccum = showsAccum.concat(data);
+          canLoadMore = data.length === PAGE_SIZE;
+        }
+        renderShows(showsAccum);
+        setStatus("", "");
+      } catch (e) {
+        console.error(e);
+        setStatus("Could not load more", "error");
+      } finally {
+        updateLoadMoreUi();
+      }
+    }
+
+    els.dateFrom.addEventListener("change", loadShows);
+    els.dateTo.addEventListener("change", loadShows);
+
+    function onSearchInput() {
+      if (alertsModalOpen) return;
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (alertsModalOpen) return;
+        loadShows();
+      }, 280);
+    }
+    els.search.addEventListener("input", onSearchInput);
+
+    els.clear.addEventListener("click", () => {
+      els.dateFrom.value = "";
+      els.dateTo.value = "";
+      els.search.value = "";
+      venueFilter = "all";
+      setVenueChipActive("all");
+      clearTimeout(debounceTimer);
+      loadShows();
+    });
+
+    els.venueChips.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-source]");
+      if (!btn) return;
+      const next = btn.dataset.source;
+      if (!next) return;
+      venueFilter = next;
+      setVenueChipActive(next);
+      renderShows(showsAccum);
+    });
+
+    els.loadMore.addEventListener("click", () => {
+      loadMoreShows();
+    });
+
+    loadShows();
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+node_modules
+.git
+.env
+spotlight.db
+*.log
+page-dump.html

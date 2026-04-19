@@ -1,0 +1,23 @@
+{
+  "name": "spotlight",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node api/server.mjs",
+    "send-alerts": "node api/send-alerts.mjs",
+    "scrape:comedy-cellar": "node scrapers/comedy-cellar/scrape-tonight.mjs",
+    "scrape:comedy-cellar:all": "node scrapers/comedy-cellar/scrape-all-dates.mjs",
+    "save:comedy-cellar": "node scrapers/comedy-cellar/save-lineup.mjs",
+    "scrape:nycc": "node scrapers/nycc/scrape-nycc.mjs",
+    "scrape:gotham": "node scrapers/gotham/scrape-gotham.mjs",
+    "scrape:stand": "node scrapers/stand/scrape-stand.mjs",
+    "scrape:all": "npm run scrape:comedy-cellar:all && npm run scrape:nycc && npm run scrape:gotham && npm run scrape:stand"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "puppeteer": "^24.11.2",
+    "resend": "^6.12.0"
+  }
+}
