@@ -7,7 +7,7 @@ import { openDb } from "../db.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env"), quiet: true });
 
-const FROM = "onboarding@resend.dev";
+const FROM = "LineupNYC <onboarding@resend.dev>";
 
 const TICKET_URLS = {
   "comedy-cellar": "https://www.comedycellar.com/reservations",
@@ -74,7 +74,7 @@ function buildEmailHtml(comedian, shows) {
 </tr></thead>
 <tbody>${rows}</tbody>
 </table>
-<p style="font-size:14px;color:#666">You’re receiving this because you signed up for Spotlight alerts.</p>
+<p style="font-size:14px;color:#666">You’re receiving this because you signed up for LineupNYC alerts.</p>
 </body></html>`;
 }
 
@@ -139,7 +139,7 @@ async function main() {
       const { data, error } = await resend.emails.send({
         from: FROM,
         to: email,
-        subject: `Spotlight: upcoming shows for ${comedian}`,
+        subject: `LineupNYC: upcoming shows for ${comedian}`,
         html: buildEmailHtml(comedian, fresh)
       });
 

@@ -143,7 +143,7 @@ app.post("/watchlist", (req, res) => {
 app.use(express.static(path.join(__dirname, "public")));
 
 const server = app.listen(PORT, () => {
-  console.log(`spotlight api listening on http://localhost:${PORT}`);
+  console.log(`lineupnyc api listening on http://localhost:${PORT}`);
 });
 
 process.on("SIGINT", () => {
