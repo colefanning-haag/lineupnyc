@@ -20,7 +20,11 @@ RUN npm ci
 
 COPY . .
 
+RUN chmod +x scripts/docker-entrypoint.sh
+
 EXPOSE 3000
 ENV NODE_ENV=production
+ENV DB_PATH=/data/spotlight.db
 
+ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
 CMD ["npm", "start"]
