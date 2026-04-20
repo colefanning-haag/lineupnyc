@@ -598,6 +598,14 @@
       transform: scale(0.995);
     }
 
+    article.show-card--no-expand {
+      cursor: default;
+    }
+
+    article.show-card--no-expand:active {
+      transform: none;
+    }
+
     .card-hint {
       font-size: 0.68rem;
       font-weight: 600;
@@ -655,29 +663,74 @@
       font-style: italic;
     }
 
+    .card-actions {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
     .btn-tickets {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      margin-top: 16px;
       padding: 11px 20px;
       border-radius: 12px;
-      border: none;
       font: inherit;
       font-size: 0.88rem;
       font-weight: 700;
       cursor: pointer;
       text-decoration: none;
-      color: #0c0c0f;
-      background: linear-gradient(145deg, #ddd6fe, #a78bfa);
-      box-shadow: 0 6px 22px rgba(124, 92, 255, 0.3);
-      transition: transform 0.12s ease, filter 0.15s ease;
+      border: 1px solid var(--border);
+      transition: transform 0.12s ease, filter 0.15s ease, border-color 0.15s ease, background 0.15s ease;
     }
 
-    .btn-tickets:hover {
-      filter: brightness(1.06);
+    .btn-tickets--neutral {
+      color: #e8e8f0;
+      background: rgba(255, 255, 255, 0.07);
+      box-shadow: none;
     }
 
+    .btn-tickets--neutral:hover {
+      background: rgba(255, 255, 255, 0.11);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-tickets--available {
+      color: #052e1a;
+      background: linear-gradient(145deg, #6ee7b7, #34d399);
+      border-color: rgba(52, 211, 153, 0.55);
+      box-shadow: 0 6px 20px rgba(52, 211, 153, 0.22);
+    }
+
+    .btn-tickets--available:hover {
+      filter: brightness(1.05);
+    }
+
+    .btn-notify-when-available {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 20px;
+      border-radius: 12px;
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid rgba(251, 146, 60, 0.42);
+      color: #fdba8c;
+      background: rgba(251, 146, 60, 0.1);
+      box-shadow: 0 4px 16px rgba(234, 88, 12, 0.12);
+      transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-notify-when-available:hover {
+      background: rgba(251, 146, 60, 0.16);
+      border-color: rgba(253, 186, 116, 0.5);
+    }
+
+    .btn-notify-when-available:active,
     .btn-tickets:active {
       transform: scale(0.98);
     }
@@ -1283,6 +1336,24 @@
       return kind || null;
     }
 
+    function rowHasMeaningfulCredits(rawJson) {
+      try {
+        const parsed = JSON.parse(rawJson || "{}");
+        const comics = Array.isArray(parsed.comedians) ? parsed.comedians : [];
+        for (const c of comics) {
+          const cred = String(c?.credits ?? "")
+            .replace(/\u00a0/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          if (!cred || isBoilerplateCreditsText(cred)) continue;
+          return true;
+        }
+      } catch {
+        /* ignore */
+      }
+      return false;
+    }
+
     function buildCreditsFromRawJson(rawJson) {
       const wrap = document.createElement("div");
       wrap.className = "card-credits";
@@ -1318,6 +1389,7 @@
 
     function bindCardToggle(card) {
       const expandPanel = card.querySelector(".card-expanded");
+      if (!expandPanel) return;
       const sync = (open) => {
         card.classList.toggle("expanded", open);
         card.setAttribute("aria-expanded", open ? "true" : "false");
@@ -1326,7 +1398,8 @@
       };
 
       card.addEventListener("click", (e) => {
-        if (e.target.closest("a.btn-tickets")) return;
+        if (e.target.closest("a.card-ticket-cta")) return;
+        if (e.target.closest("button.card-ticket-cta")) return;
         if (card.classList.contains("expanded") && e.target.closest(".card-expanded")) return;
         sync(!card.classList.contains("expanded"));
       });
@@ -1384,9 +1457,6 @@
           card.className = "card show-card";
           card.dataset.source = String(row.source || "");
           card.dataset.venueTone = venueTone(row);
-          card.setAttribute("role", "button");
-          card.setAttribute("tabindex", "0");
-          card.setAttribute("aria-expanded", "false");
 
           const dateLine = formatShowDate(row.date) || formatShowDate(g.date) || "";
 
@@ -1400,9 +1470,15 @@
               : "<em style='color:#7a7a8c'>No names listed</em>";
 
           const src = String(row.source || "");
+          const ticketHref = TICKET_URLS[src] || TICKET_URLS["comedy-cellar"];
+          const availKind = resolveAvailabilityKind(row);
+          const hasCred = rowHasMeaningfulCredits(row.raw_json);
 
           const main = document.createElement("div");
           main.className = "card-main";
+          const hintHtml = hasCred
+            ? `<div class="card-hint">Tap for comedian details</div>`
+            : "";
           main.innerHTML = `
             <div class="card-top">
               <div class="venue">${escapeHtml(formatCardVenue(row))}</div>
@@ -1412,10 +1488,10 @@
               </div>
             </div>
             <div class="comics"><strong>Lineup</strong> — ${comicsHtml}</div>
-            <div class="card-hint">Tap for details &amp; tickets</div>
+            <div class="card-actions"></div>
+            ${hintHtml}
           `;
 
-          const availKind = resolveAvailabilityKind(row);
           if (availKind) {
             const pill = document.createElement("span");
             pill.className =
@@ -1427,25 +1503,51 @@
             main.querySelector(".card-right").appendChild(pill);
           }
 
-          const expanded = document.createElement("div");
-          expanded.className = "card-expanded";
-          expanded.hidden = true;
-          expanded.setAttribute("aria-hidden", "true");
-          const creditsBlock = buildCreditsFromRawJson(row.raw_json);
-          if (creditsBlock) expanded.appendChild(creditsBlock);
+          const actions = main.querySelector(".card-actions");
+          if (availKind === "sold_out") {
+            const notifyBtn = document.createElement("button");
+            notifyBtn.type = "button";
+            notifyBtn.className = "btn-notify-when-available card-ticket-cta";
+            notifyBtn.textContent = "Notify me when available";
+            notifyBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openAlertsModal();
+            });
+            actions.appendChild(notifyBtn);
+          } else {
+            const tickets = document.createElement("a");
+            tickets.className =
+              "btn-tickets card-ticket-cta " +
+              (availKind === "available" ? "btn-tickets--available" : "btn-tickets--neutral");
+            tickets.href = ticketHref;
+            tickets.target = "_blank";
+            tickets.rel = "noopener noreferrer";
+            tickets.textContent = "Get Tickets →";
+            actions.appendChild(tickets);
+          }
 
-          const ticketHref = TICKET_URLS[src] || TICKET_URLS["comedy-cellar"];
-          const tickets = document.createElement("a");
-          tickets.className = "btn-tickets";
-          tickets.href = ticketHref;
-          tickets.target = "_blank";
-          tickets.rel = "noopener noreferrer";
-          tickets.textContent = "Get Tickets";
-
-          expanded.appendChild(tickets);
           card.appendChild(main);
-          card.appendChild(expanded);
-          bindCardToggle(card);
+
+          if (hasCred) {
+            card.setAttribute("role", "button");
+            card.setAttribute("tabindex", "0");
+            card.setAttribute("aria-expanded", "false");
+            const expanded = document.createElement("div");
+            expanded.className = "card-expanded";
+            expanded.hidden = true;
+            expanded.setAttribute("aria-hidden", "true");
+            const creditsBlock = buildCreditsFromRawJson(row.raw_json);
+            if (creditsBlock) expanded.appendChild(creditsBlock);
+            card.appendChild(expanded);
+            bindCardToggle(card);
+          } else {
+            card.removeAttribute("role");
+            card.removeAttribute("aria-expanded");
+            card.setAttribute("tabindex", "-1");
+            card.classList.add("show-card--no-expand");
+          }
+
           frag.appendChild(card);
         }
       }
