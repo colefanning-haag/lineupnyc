@@ -1,5 +1,5 @@
 -- Exported by scripts/export-db.mjs
--- 2026-04-20T01:34:24.563Z
+-- 2026-04-20T02:07:00.684Z
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 
@@ -392,6 +392,6 @@ INSERT INTO "shows" ("id", "source", "date", "time", "venue", "comedian_names", 
 
 -- preserve AUTOINCREMENT (shows only)
 DELETE FROM sqlite_sequence WHERE name = 'shows';
-INSERT INTO sqlite_sequence (name, seq) VALUES ('shows', 1087);
+INSERT INTO sqlite_sequence (name, seq) VALUES ('shows', 1162);
 
 COMMIT;

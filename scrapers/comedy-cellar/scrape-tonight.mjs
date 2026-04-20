@@ -106,27 +106,98 @@ function parseLineupFromText(pageText, { date, source }) {
     const tokens = normalizeWs(line).split(" ").filter(Boolean);
     if (!tokens.length) return null;
 
-    const upperTokenIdx = tokens.findIndex((tok, idx) => {
-      if (idx === 0) return false;
-      const letters = tok.replace(/[^A-Za-z]/g, "");
-      return letters.length >= 2 && letters === letters.toUpperCase();
-    });
+    // Heuristic: keep only the first 1–3 name-like tokens.
+    // Stop as soon as we hit lowercase words (often credits) or obvious credential keywords.
+    const credentialKeywords = new Set([
+      "host",
+      "hosting",
+      "from",
+      "writer",
+      "writes",
+      "wrote",
+      "producer",
+      "director",
+      "actor",
+      "actress",
+      "star",
+      "stars",
+      "starring",
+      "creator",
+      "comic",
+      "comedian",
+      "regular",
+      "cast",
+      "featured",
+      "featuring",
+      "seen",
+      "on",
+      "in",
+      "of",
+      "for",
+      "at",
+      "with"
+    ]);
 
-    let name = "";
-    let credits = "";
+    const isPossessiveCreditsToken = (tok) => /['’]s$/i.test(tok);
+    const looksLikeLowercaseWord = (tok) => /^[a-z]/.test(tok);
+    const looksLikeNameToken = (tok) => {
+      // Allow "J.", "J", "O'Neil", "McDougal", "DJ" etc.
+      const stripped = tok.replace(/^[("“”]+|[)"“”,.!?:;]+$/g, "");
+      if (!stripped) return false;
+      if (/^[A-Z]\.?$/.test(stripped)) return true; // initial
+      if (/^[A-Z][a-z]+(?:['’][A-Za-z]+)?$/.test(stripped)) return true; // capitalized word, optional apostrophe part
+      // Allow internal capitals like "DiPaolo", "McDonald", "VanDoren"
+      if (/^[A-Z][a-z]+(?:[A-Z][a-z]+)+$/.test(stripped)) return true;
+      const letters = stripped.replace(/[^A-Za-z]/g, "");
+      if (letters.length >= 2 && letters.length <= 4 && letters === letters.toUpperCase()) return true; // short all-caps
+      return false;
+    };
 
-    if (upperTokenIdx !== -1) {
-      name = tokens.slice(0, upperTokenIdx).join(" ");
-      credits = tokens.slice(upperTokenIdx).join(" ");
-    } else if (tokens.length >= 3) {
-      name = tokens.slice(0, 2).join(" ");
-      credits = tokens.slice(2).join(" ");
-    } else {
-      name = tokens.join(" ");
-      credits = "";
+    let splitIdx = tokens.length;
+    const nameTokens = [];
+
+    for (let i = 0; i < tokens.length; i++) {
+      const tok = tokens[i];
+      const lower = tok.toLowerCase();
+
+      // Always accept the first token as part of the name (even if it's imperfect).
+      if (i === 0) {
+        nameTokens.push(tok);
+        continue;
+      }
+
+      if (nameTokens.length >= 3) {
+        splitIdx = i;
+        break;
+      }
+
+      // Parenthetical / bracketed qualifiers are almost always credits.
+      if (/^[([]/.test(tok)) {
+        splitIdx = i;
+        break;
+      }
+
+      if (looksLikeLowercaseWord(tok)) {
+        splitIdx = i;
+        break;
+      }
+
+      if (credentialKeywords.has(lower) || isPossessiveCreditsToken(tok)) {
+        splitIdx = i;
+        break;
+      }
+
+      if (!looksLikeNameToken(tok)) {
+        splitIdx = i;
+        break;
+      }
+
+      nameTokens.push(tok);
     }
 
-    return { name: normalizeWs(name), credits: normalizeWs(credits) };
+    const name = normalizeWs(nameTokens.join(" "));
+    const credits = normalizeWs(tokens.slice(splitIdx).join(" "));
+    return { name, credits };
   };
 
   for (const line of lines) {
