@@ -6,6 +6,8 @@ import { openDb } from "../db.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SEED_FILE = path.join(__dirname, "seed.sql");
 
+const force = process.argv.includes("--force");
+
 function main() {
   const db = openDb();
   try {
@@ -18,11 +20,17 @@ function main() {
       existing = 0;
     }
 
-    if (existing > 0) {
+    if (!force && existing > 0) {
       console.log(
         `Skipping seed: shows already has ${existing} row(s). Database left unchanged.`
       );
       return;
+    }
+
+    if (force && existing > 0) {
+      console.log(
+        `Force seed: applying ${SEED_FILE} (drops and recreates shows only; watchlist unchanged).`
+      );
     }
 
     if (!fs.existsSync(SEED_FILE)) {

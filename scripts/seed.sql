@@ -1,10 +1,9 @@
 -- Exported by scripts/export-db.mjs
--- 2026-04-20T01:28:15.941Z
+-- 2026-04-20T01:34:24.563Z
 PRAGMA foreign_keys=OFF;
 BEGIN TRANSACTION;
 
 DROP TABLE IF EXISTS shows;
-DROP TABLE IF EXISTS watchlist;
 
 CREATE TABLE shows (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,14 +15,6 @@ CREATE TABLE shows (
       raw_json TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     , availability TEXT);
-
-CREATE TABLE watchlist (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email TEXT NOT NULL,
-      comedian TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      last_notified TEXT
-    );
 
 CREATE UNIQUE INDEX shows_uniq
       ON shows(source, date, time, venue);
@@ -399,10 +390,8 @@ INSERT INTO "shows" ("id", "source", "date", "time", "venue", "comedian_names", 
 INSERT INTO "shows" ("id", "source", "date", "time", "venue", "comedian_names", "raw_json", "created_at", "availability") VALUES (1015, 'nycc', '2026-05-19', '07:00 pm', 'MIDTOWN', 'Jessica Kirson Live in New York', '{"source":"nycc","date":"2026-05-19","time":"07:00 pm","venue":"MIDTOWN","comedians":[{"name":"Jessica Kirson Live in New York","credits":"Jessica Kirson is a powerhouse on stage. She’s a hilariously relatable performer of sheer silliness, vulnerability, and ridiculous characters. Her countless comedic character videos have racked up over 50 million views on..."}]}', '2026-04-19 22:45:54', 'BUY TICKETS');
 INSERT INTO "shows" ("id", "source", "date", "time", "venue", "comedian_names", "raw_json", "created_at", "availability") VALUES (1016, 'nycc', '2026-05-19', '09:30 pm', 'MIDTOWN', 'Jessica Kirson Live in New York', '{"source":"nycc","date":"2026-05-19","time":"09:30 pm","venue":"MIDTOWN","comedians":[{"name":"Jessica Kirson Live in New York","credits":"Jessica Kirson is a powerhouse on stage. She’s a hilariously relatable performer of sheer silliness, vulnerability, and ridiculous characters. Her countless comedic character videos have racked up over 50 million views on..."}]}', '2026-04-19 22:45:54', 'BUY TICKETS');
 
--- watchlist (0 rows)
-
--- preserve AUTOINCREMENT
-DELETE FROM sqlite_sequence WHERE name IN ('shows', 'watchlist');
+-- preserve AUTOINCREMENT (shows only)
+DELETE FROM sqlite_sequence WHERE name = 'shows';
 INSERT INTO sqlite_sequence (name, seq) VALUES ('shows', 1087);
 
 COMMIT;

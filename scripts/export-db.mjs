@@ -6,8 +6,8 @@ import { openDb } from "../db.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT_FILE = path.join(__dirname, "seed.sql");
 
-/** Tables to export, in dependency-safe order (CREATE / INSERT). */
-const TABLES = ["shows", "watchlist"];
+/** Tables to export (shows only; watchlist is never exported or re-seeded). */
+const TABLES = ["shows"];
 
 function sqlLiteral(val) {
   if (val === null || val === undefined) return "NULL";
@@ -49,7 +49,7 @@ function main() {
   const indexes = db
     .prepare(
       `SELECT sql FROM sqlite_master
-       WHERE type = 'index' AND tbl_name IN ('shows', 'watchlist') AND sql IS NOT NULL
+       WHERE type = 'index' AND tbl_name = 'shows' AND sql IS NOT NULL
        ORDER BY name`
     )
     .all();
@@ -83,14 +83,12 @@ function main() {
   if (hasSeq) {
     const seqRows = db
       .prepare(
-        `SELECT name, seq FROM sqlite_sequence WHERE name IN ('shows', 'watchlist')`
+        `SELECT name, seq FROM sqlite_sequence WHERE name = 'shows'`
       )
       .all();
     if (seqRows.length) {
-      lines.push("-- preserve AUTOINCREMENT");
-      lines.push(
-        `DELETE FROM sqlite_sequence WHERE name IN ('shows', 'watchlist');`
-      );
+      lines.push("-- preserve AUTOINCREMENT (shows only)");
+      lines.push(`DELETE FROM sqlite_sequence WHERE name = 'shows';`);
       for (const r of seqRows) {
         lines.push(
           `INSERT INTO sqlite_sequence (name, seq) VALUES (${sqlLiteral(r.name)}, ${sqlLiteral(r.seq)});`
