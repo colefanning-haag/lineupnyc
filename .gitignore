@@ -7,3 +7,5 @@ spotlight.db
 !/railway.json
 page-dump.html
 *.log
+*.db-shm
+*.db-wal
