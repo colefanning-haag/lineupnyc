@@ -57,6 +57,11 @@ export function initDb(db) {
   if (!wlCols.some((c) => c.name === "last_notified")) {
     db.exec(`ALTER TABLE watchlist ADD COLUMN last_notified TEXT`);
   }
+
+  const showCols = db.prepare(`PRAGMA table_info(shows)`).all();
+  if (!showCols.some((c) => c.name === "availability")) {
+    db.exec(`ALTER TABLE shows ADD COLUMN availability TEXT`);
+  }
 }
 
 export function openDb() {

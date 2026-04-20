@@ -708,6 +708,31 @@
       flex-shrink: 0;
     }
 
+    .availability-pill {
+      margin-top: 6px;
+      display: inline-block;
+      width: max-content;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 9px;
+      border-radius: 999px;
+      line-height: 1.2;
+    }
+
+    .availability-pill--soldout {
+      color: #fecaca;
+      background: rgba(248, 113, 113, 0.14);
+      border: 1px solid rgba(248, 113, 113, 0.4);
+    }
+
+    .availability-pill--available {
+      color: #6ee7b7;
+      background: rgba(52, 211, 153, 0.12);
+      border: 1px solid rgba(52, 211, 153, 0.38);
+    }
+
     .card-date {
       font-size: 0.88rem;
       font-weight: 700;
@@ -1233,6 +1258,31 @@
       return lower.charAt(0).toUpperCase() + lower.slice(1);
     }
 
+    /**
+     * Prefer API `availability`, else `raw_json.availability`.
+     * @returns {"sold_out"|"available"|null}
+     */
+    function resolveAvailabilityKind(row) {
+      const pick = (v) => {
+        if (v == null) return null;
+        const s = String(v).trim();
+        if (!s) return null;
+        const u = s.toUpperCase();
+        if (u === "SOLD OUT") return "sold_out";
+        if (u === "BUY TICKETS" || u === "GET TICKETS") return "available";
+        return null;
+      };
+      let kind = pick(row?.availability);
+      if (kind) return kind;
+      try {
+        const parsed = JSON.parse(row?.raw_json || "{}");
+        kind = pick(parsed?.availability);
+      } catch {
+        /* ignore */
+      }
+      return kind || null;
+    }
+
     function buildCreditsFromRawJson(rawJson) {
       const wrap = document.createElement("div");
       wrap.className = "card-credits";
@@ -1364,6 +1414,18 @@
             <div class="comics"><strong>Lineup</strong> — ${comicsHtml}</div>
             <div class="card-hint">Tap for details &amp; tickets</div>
           `;
+
+          const availKind = resolveAvailabilityKind(row);
+          if (availKind) {
+            const pill = document.createElement("span");
+            pill.className =
+              "availability-pill " +
+              (availKind === "sold_out"
+                ? "availability-pill--soldout"
+                : "availability-pill--available");
+            pill.textContent = availKind === "sold_out" ? "Sold out" : "Available";
+            main.querySelector(".card-right").appendChild(pill);
+          }
 
           const expanded = document.createElement("div");
           expanded.className = "card-expanded";

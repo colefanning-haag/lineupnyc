@@ -26,7 +26,7 @@ app.get("/shows", (req, res) => {
     const comedian = req.query.comedian;
 
     let sql = `
-      SELECT id, source, date, time, venue, comedian_names, raw_json, created_at
+      SELECT id, source, date, time, venue, comedian_names, raw_json, availability, created_at
       FROM shows
       WHERE 1 = 1
     `;

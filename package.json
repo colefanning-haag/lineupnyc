@@ -11,6 +11,7 @@
     "scrape:nycc": "node scrapers/nycc/scrape-nycc.mjs",
     "scrape:gotham": "node scrapers/gotham/scrape-gotham.mjs",
     "scrape:stand": "node scrapers/stand/scrape-stand.mjs",
+    "scrape:stand:availability": "node scrapers/stand/check-availability.mjs",
     "scrape:all": "npm run scrape:comedy-cellar:all && npm run scrape:nycc && npm run scrape:gotham && npm run scrape:stand",
     "export:db": "node scripts/export-db.mjs",
     "seed:db": "node scripts/seed-db.mjs"
