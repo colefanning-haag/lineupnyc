@@ -9,3 +9,4 @@ page-dump.html
 *.log
 *.db-shm
 *.db-wal
+availability-dump.html
