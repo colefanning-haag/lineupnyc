@@ -1,0 +1,26 @@
+> node scripts/export-db.mjs
+
+Wrote /Users/colefanninghaag/Documents/spotlight/scripts/seed.sql
+[main 60724e0] preserve watchlist on redeploy
+ Committer: Cole Fanning-Haag <colefanninghaag@mac.mynetworksettings.com>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 5 files changed, 20 insertions(+), 27 deletions(-)
+Enumerating objects: 15, done.
+Counting objects: 100% (15/15), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (8/8), done.
+Writing objects: 100% (8/8), 94.90 KiB | 6.33 MiB/s, done.
+Total 8 (delta 4), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (4/4), completed with 4 local objects.
+To github.com:colefanning-haag/lineupnyc.git
