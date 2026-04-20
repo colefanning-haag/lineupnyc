@@ -663,20 +663,12 @@
       font-style: italic;
     }
 
-    .card-actions {
-      margin-top: 14px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
     .btn-tickets {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       padding: 11px 20px;
-      border-radius: 12px;
+      border-radius: 10px;
       font: inherit;
       font-size: 0.88rem;
       font-weight: 700;
@@ -713,7 +705,7 @@
       align-items: center;
       justify-content: center;
       padding: 11px 20px;
-      border-radius: 12px;
+      border-radius: 10px;
       font: inherit;
       font-size: 0.88rem;
       font-weight: 700;
@@ -756,22 +748,38 @@
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 3px;
+      gap: 2px;
       text-align: right;
       flex-shrink: 0;
+      max-width: min(100%, 200px);
+    }
+
+    .card-right .card-ticket-cta {
+      margin-top: 8px;
+      width: max-content;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 8px 12px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      line-height: 1.25;
+      text-align: center;
+      white-space: normal;
     }
 
     .availability-pill {
-      margin-top: 6px;
       display: inline-block;
       width: max-content;
-      font-size: 0.65rem;
+      max-width: 100%;
+      margin-top: 1px;
+      font-size: 0.58rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 4px 9px;
+      letter-spacing: 0.05em;
+      padding: 2px 6px;
       border-radius: 999px;
-      line-height: 1.2;
+      line-height: 1.25;
+      vertical-align: baseline;
     }
 
     .availability-pill--soldout {
@@ -1488,11 +1496,12 @@
               </div>
             </div>
             <div class="comics"><strong>Lineup</strong> — ${comicsHtml}</div>
-            <div class="card-actions"></div>
             ${hintHtml}
           `;
 
-          if (availKind) {
+          const cardRight = main.querySelector(".card-right");
+          const timeEl = main.querySelector(".time");
+          if (availKind && timeEl) {
             const pill = document.createElement("span");
             pill.className =
               "availability-pill " +
@@ -1500,10 +1509,9 @@
                 ? "availability-pill--soldout"
                 : "availability-pill--available");
             pill.textContent = availKind === "sold_out" ? "Sold out" : "Available";
-            main.querySelector(".card-right").appendChild(pill);
+            timeEl.insertAdjacentElement("afterend", pill);
           }
 
-          const actions = main.querySelector(".card-actions");
           if (availKind === "sold_out") {
             const notifyBtn = document.createElement("button");
             notifyBtn.type = "button";
@@ -1514,17 +1522,23 @@
               e.stopPropagation();
               openAlertsModal();
             });
-            actions.appendChild(notifyBtn);
-          } else {
+            cardRight.appendChild(notifyBtn);
+          } else if (availKind === "available") {
             const tickets = document.createElement("a");
-            tickets.className =
-              "btn-tickets card-ticket-cta " +
-              (availKind === "available" ? "btn-tickets--available" : "btn-tickets--neutral");
+            tickets.className = "btn-tickets btn-tickets--available card-ticket-cta";
             tickets.href = ticketHref;
             tickets.target = "_blank";
             tickets.rel = "noopener noreferrer";
             tickets.textContent = "Get Tickets →";
-            actions.appendChild(tickets);
+            cardRight.appendChild(tickets);
+          } else {
+            const check = document.createElement("a");
+            check.className = "btn-tickets btn-tickets--neutral card-ticket-cta";
+            check.href = ticketHref;
+            check.target = "_blank";
+            check.rel = "noopener noreferrer";
+            check.textContent = "Check availability →";
+            cardRight.appendChild(check);
           }
 
           card.appendChild(main);
